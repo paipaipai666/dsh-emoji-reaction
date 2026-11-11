@@ -76,7 +76,7 @@ The user also defined custom reactions: 大肥鱼 🐟.
 
 ### 桌面端（无需命令行）
 
-**设置 → 插件 → 添加插件**，输入包名：
+打开 **设置 → 内置插件**（0.2.2 之前叫「插件」页），点 **添加插件**，输入包名：
 
 ```
 dsh-emoji-reaction
