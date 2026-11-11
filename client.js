@@ -429,11 +429,14 @@ window.__ModuleLoader__.load({
       if (nodes.length === 0) return [];
 
       let message = null;
-      for (const node of nodes) {
+      let messageIndex = -1;
+      for (let index = 0; index < nodes.length; index += 1) {
+        const node = nodes[index];
         if (node === null || node.kind !== 'user') continue;
         const data = node.data !== null && typeof node.data === 'object' ? node.data : null;
         if (data !== null && sameSource(data.source, source)) {
           message = node;
+          messageIndex = index;
           break;
         }
       }
@@ -442,6 +445,18 @@ window.__ModuleLoader__.load({
       const location = message.location !== null && typeof message.location === 'object' ? message.location : null;
       const turn = location !== null && typeof location.turn === 'number' ? location.turn : null;
       const anchor = typeof message.anchorSeq === 'number' ? message.anchorSeq : null;
+
+      // A Turn ends where the next user message begins. Bounding the fallback this way keeps a
+      // reaction from one Turn from being replayed on every earlier message that ever reacted.
+      let nextAnchor = null;
+      for (let index = messageIndex + 1; index < nodes.length; index += 1) {
+        const node = nodes[index];
+        if (node === null || node.kind !== 'user') continue;
+        if (typeof node.anchorSeq === 'number') {
+          nextAnchor = node.anchorSeq;
+          break;
+        }
+      }
 
       const hits = [];
       for (const node of nodes) {
@@ -457,11 +472,10 @@ window.__ModuleLoader__.load({
               ? root.turn
               : null;
 
-        const inTurn =
-          turn !== null && nodeTurn !== null
-            ? nodeTurn === turn
-            : anchor !== null && typeof node.anchorSeq === 'number' && node.anchorSeq > anchor;
-        if (!inTurn) continue;
+        const seq = typeof node.anchorSeq === 'number' ? node.anchorSeq : null;
+        const inTurn = turn !== null && nodeTurn !== null && nodeTurn === turn;
+        const inWindow = seq !== null && anchor !== null && seq > anchor && (nextAnchor === null || seq < nextAnchor);
+        if (!inTurn && !inWindow) continue;
 
         const args = callArguments(root);
         if (args === null) continue;
