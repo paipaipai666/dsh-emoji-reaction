@@ -72,24 +72,60 @@ The user also defined custom reactions: 大肥鱼 🐟.
 
 ## 安装
 
-已发布到 npm（`dsh-emoji-reaction@0.1.0`），装到当前 profile：
+已发布到 npm：`dsh-emoji-reaction@0.1.1`。
 
-```js
-plugin_manager({ action: 'install_bundle', target: 'dsh-emoji-reaction' })
+### 桌面端（无需命令行）
+
+**设置 → 插件 → 添加插件**，输入包名：
+
+```
+dsh-emoji-reaction
 ```
 
-或从 GitHub 装：`target: 'github:paipaipai666/dsh-emoji-reaction'`。
+确认来源、装好，刷新页面即可。插件管理器接受 npm 包名、GitHub 仓库地址或本机目录路径；它会校验包里的 `dsh.bundle`，没声明的包会被拒绝为「这个包没有声明组合包，无法作为插件安装」。
 
-本地开发时可以直接链目录：
+### 命令行（`dsh web` 等自管 profile）
+
+先装好 `@deepseek-ai/dsh`，然后：
+
+```sh
+dsh plugin --profile web add dsh-emoji-reaction
+```
+
+装完重启 `dsh web`。`dsh plugin` 只是把剩下的参数原样转给 profile 目录里的 pnpm，所以 `remove`、`why` 也能直接用：
+
+```sh
+dsh plugin --profile web remove dsh-emoji-reaction
+```
+
+桌面端使用的 `desktop` profile 由 Electron 应用单独管理，命令行会直接拒绝：
+
+```
+error: profile "desktop" is managed exclusively by the Electron application
+```
+
+### 从 GitHub 源码
+
+```sh
+dsh plugin --profile web add github:paipaipai666/dsh-emoji-reaction
+```
+
+### 本地目录（开发）
 
 ```js
 plugin_manager({ action: 'install_bundle', target: 'D:\\code\\dsh\\dsh-emoji-reaction' })
 ```
 
+### 插件市场
+
+还没收录进 [awesome-dsh-plugin](https://awesome-dsh-plugin.com) 的精选目录，所以现在在 **插件 → 插件市场** 里搜不到（dshmarket 只安装精选列表内的来源）。收录之后可以直接搜名字一键安装。
+
 本地目录安装得到的是软链接。`client.js` 改完**刷新页面**即可；`index.js` 改完**必须重启入口**——链接目录里的 Host 文件不会被重新 import，用 `plugin_manager` 把 bundle 禁用再启用一次（或重启 DSH）就行。判断是否生效看 `cordis_inspect_query` 的 `Config/listConfigs`：`absent` 是旧代码，`schema` 才是新代码。
 
 ## 卸载
 
-```js
-plugin_manager({ action: 'remove_bundle', target: 'dsh-emoji-reaction' })
+```sh
+dsh plugin --profile web remove dsh-emoji-reaction
 ```
+
+桌面端在 **设置 → 插件 → 已安装** 里卸载；本地链接安装也可以用 `plugin_manager({ action: 'remove_bundle', target: 'dsh-emoji-reaction' })`。
