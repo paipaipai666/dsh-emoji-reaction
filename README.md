@@ -66,7 +66,7 @@ The user also defined custom reactions: 大肥鱼 🐟.
 
 - **可选，且默认不用。** 描述里明确写了大多数消息不需要反应，正经干活时不要贴 emoji。娱乐插件一旦变成噪音就不娱乐了。
 - **工具本身没有副作用。** 只校验名字、把评论折叠空白并截断到 50 字，然后原样回显；展示完全交给客户端 slot：`tool.call.toolview`（空节点，压掉工具行）、`conversation.chat.user.before`（气泡上方那行印章）、`settings.section`（设置页里的表单）和 `plugins.row.config`（同一份表单的插件详情入口）。
-- **气泡怎么找到自己的消息。** 该链式 slot 只给到消息的 `source`（里面有 `rpcId`），所以客户端在 Chat 快照里按 `rpcId` 找到这条用户消息对应的 Chat Node，再取它所在 Turn 里所有 `express_reaction` 调用。Turn 优先按 `location.turn` 判定；工具结果的 Node 上没有 turn 时，改用「本消息 `anchorSeq` → 下一条用户消息 `anchorSeq`」这个区间兜底——只按 `anchorSeq > 本消息` 兜底会把后面每一轮的反应都回贴到前面的消息上。全部是派生数据，不写会话、不建客户端 store。
+- **气泡怎么找到自己的消息。** 该链式 slot 只给到消息的 `source`（里面有 `rpcId`），所以客户端在 Chat 快照里按 `rpcId` 找到这条用户消息对应的 Chat Node，再取它所在 Turn 里所有 `express_reaction` 调用。Chat Node 的 `location.turn` 是 Turn **对象**（Turn 号在 `location.turn.turn`），工具结果的 Node 常常没有 turn，于是用「本消息 `anchorSeq` → 下一条用户消息 `anchorSeq`」这个区间兜底。两个坑都踩过：一是漏看 `location.turn.turn` 会让按 Turn 的判定永远不成立；二是 `nodes.values()` 是**插入顺序**（跟着最近一次整页 replace 或实时批次走），不是文档顺序，所以边界不能取“数组里的下一个”，必须对全部消息取「大于本消息 anchor 的最小 anchor」。只按 `anchorSeq > 本消息` 兜底，或者边界取空，都会把后面每一轮的反应回贴到前面的消息上。全部是派生数据，不写会话、不建客户端 store。
 - **Config 只在 Host 侧。** 客户端 bundle 从启动图拿到的是 `{ id, url, rev, inject, external, immediately }`，没有 config；所以客户端的取值只能跟着工具结果走，而不是自己去读配置。
 - **保留 `presentCall`。** 客户端 bundle 没加载时，工具行仍然是可读的文字，而不是空行。
 

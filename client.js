@@ -397,6 +397,28 @@ window.__ModuleLoader__.load({
       return Array.isArray(values) ? values : [];
     }
 
+    /**
+     * Chat Nodes are stored in insertion order, which follows whatever page or live batch built
+     * them last — NOT document order. Every lookup below therefore sorts by `anchorSeq` first.
+     * @param nodes - Chat Nodes in store order.
+     * @returns the same Nodes ordered by document anchor.
+     */
+    function byAnchor(nodes) {
+      return nodes.slice().sort((left, right) => {
+        const a = typeof left?.anchorSeq === 'number' ? left.anchorSeq : Number.MAX_SAFE_INTEGER;
+        const b = typeof right?.anchorSeq === 'number' ? right.anchorSeq : Number.MAX_SAFE_INTEGER;
+        return a - b;
+      });
+    }
+
+    /** A Node's Turn number: `location.turn` is a Turn object, `location.turn.turn` the number. */
+    function locationTurn(location) {
+      if (location === null || typeof location !== 'object') return null;
+      if (typeof location.turn === 'number') return location.turn;
+      const turn = location.turn;
+      return turn !== null && typeof turn === 'object' && typeof turn.turn === 'number' ? turn.turn : null;
+    }
+
     /** Two durable message sources describe the same message: `rpcId` is the only stable handle. */
     function sameSource(left, right) {
       if (left === right) return true;
@@ -425,36 +447,33 @@ window.__ModuleLoader__.load({
      * @returns the argument objects with their result meta and pending state.
      */
     function locateReactions(nodeStore, source) {
-      const nodes = nodeValues(nodeStore);
+      const nodes = byAnchor(nodeValues(nodeStore));
       if (nodes.length === 0) return [];
 
       let message = null;
-      let messageIndex = -1;
-      for (let index = 0; index < nodes.length; index += 1) {
-        const node = nodes[index];
+      for (const node of nodes) {
         if (node === null || node.kind !== 'user') continue;
         const data = node.data !== null && typeof node.data === 'object' ? node.data : null;
         if (data !== null && sameSource(data.source, source)) {
           message = node;
-          messageIndex = index;
           break;
         }
       }
       if (message === null) return [];
 
       const location = message.location !== null && typeof message.location === 'object' ? message.location : null;
-      const turn = location !== null && typeof location.turn === 'number' ? location.turn : null;
+      const turn = locationTurn(location);
       const anchor = typeof message.anchorSeq === 'number' ? message.anchorSeq : null;
 
-      // A Turn ends where the next user message begins. Bounding the fallback this way keeps a
-      // reaction from one Turn from being replayed on every earlier message that ever reacted.
+      // A Turn ends where the next message begins. Take the SMALLEST later anchor instead of the
+      // next array slot: store order changes as pages and live batches arrive, and a missing bound
+      // would replay every later reaction on this message.
       let nextAnchor = null;
-      for (let index = messageIndex + 1; index < nodes.length; index += 1) {
-        const node = nodes[index];
-        if (node === null || node.kind !== 'user') continue;
-        if (typeof node.anchorSeq === 'number') {
-          nextAnchor = node.anchorSeq;
-          break;
+      if (anchor !== null) {
+        for (const node of nodes) {
+          if (node === null || node.kind !== 'user' || node === message) continue;
+          if (typeof node.anchorSeq !== 'number' || node.anchorSeq <= anchor) continue;
+          if (nextAnchor === null || node.anchorSeq < nextAnchor) nextAnchor = node.anchorSeq;
         }
       }
 
@@ -464,13 +483,8 @@ window.__ModuleLoader__.load({
         const root = callRoot(node);
         if (root === null || callName(root) !== TOOL_NAME) continue;
 
-        const nodeLocation = node.location !== null && typeof node.location === 'object' ? node.location : null;
         const nodeTurn =
-          nodeLocation !== null && typeof nodeLocation.turn === 'number'
-            ? nodeLocation.turn
-            : typeof root.turn === 'number'
-              ? root.turn
-              : null;
+          locationTurn(node.location) ?? (typeof root.turn === 'number' ? root.turn : null);
 
         const seq = typeof node.anchorSeq === 'number' ? node.anchorSeq : null;
         const inTurn = turn !== null && nodeTurn !== null && nodeTurn === turn;
