@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="Emoji reaction">
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD666" />
+      <stop offset="1" stop-color="#F5A623" />
+    </linearGradient>
+  </defs>
+  <circle cx="16" cy="16" r="14" fill="url(#face)" />
+  <circle cx="11" cy="13" r="1.9" fill="#4A2F00" />
+  <circle cx="21" cy="13" r="1.9" fill="#4A2F00" />
+  <path d="M10.5 19.5c1.3 1.9 3.2 2.9 5.5 2.9s4.2-1 5.5-2.9" fill="none" stroke="#4A2F00" stroke-width="2.2" stroke-linecap="round" />
+</svg>
