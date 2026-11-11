@@ -72,6 +72,16 @@ The user also defined custom reactions: 大肥鱼 🐟.
 
 ## 安装
 
+已发布到 npm（`dsh-emoji-reaction@0.1.0`），装到当前 profile：
+
+```js
+plugin_manager({ action: 'install_bundle', target: 'dsh-emoji-reaction' })
+```
+
+或从 GitHub 装：`target: 'github:paipaipai666/dsh-emoji-reaction'`。
+
+本地开发时可以直接链目录：
+
 ```js
 plugin_manager({ action: 'install_bundle', target: 'D:\\code\\dsh\\dsh-emoji-reaction' })
 ```
