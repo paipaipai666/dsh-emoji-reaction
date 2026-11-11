@@ -1,6 +1,6 @@
 {
   "name": "dsh-emoji-reaction",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lets the model tap one emoji onto your message instead of answering with words.",
   "type": "module",
   "main": "index.js",

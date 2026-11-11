@@ -72,7 +72,7 @@ The user also defined custom reactions: 大肥鱼 🐟.
 
 ## 安装
 
-已发布到 npm：`dsh-emoji-reaction@0.1.1`。
+已发布到 npm：`dsh-emoji-reaction@0.1.2`。
 
 ### 桌面端（无需命令行）
 
