@@ -1,5 +1,5 @@
 # Installs the emoji reaction tool (Host) and its keyed tool view (Client).
 - insert:
     - id: emoji-reaction
-      name: '@local/dsh-emoji-reaction'
+      name: 'dsh-emoji-reaction'
       config: {}

@@ -11,7 +11,7 @@
  * arguments, so the result meta is the only channel that carries it to the stamp. Custom reaction
  * names cannot ride the tool schema (it is registered once), so a prompt section reports the live
  * list to the model on every assembly.
- * @module @local/dsh-emoji-reaction
+ * @module dsh-emoji-reaction
  */
 import z from '@deepseek-ai/schemastery';
 import { defineTool } from '@deepseek-ai/dsh-tools';

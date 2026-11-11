@@ -81,5 +81,5 @@ plugin_manager({ action: 'install_bundle', target: 'D:\\code\\dsh\\dsh-emoji-rea
 ## 卸载
 
 ```js
-plugin_manager({ action: 'remove_bundle', target: '@local/dsh-emoji-reaction' })
+plugin_manager({ action: 'remove_bundle', target: 'dsh-emoji-reaction' })
 ```

@@ -16,7 +16,7 @@
  * Host stays the only source of truth.
  */
 window.__ModuleLoader__.load({
-  id: '@local/dsh-emoji-reaction',
+  id: 'dsh-emoji-reaction',
   factory: (require) => {
     const React = require('react');
     const h = React.createElement;
@@ -224,7 +224,7 @@ window.__ModuleLoader__.load({
     const MAX_SIZE = 20;
 
     /** The bundle's package name and the row id its patch declares, joined as a `plugins.row.config` key. */
-    const PACKAGE_NAME = '@local/dsh-emoji-reaction';
+    const PACKAGE_NAME = 'dsh-emoji-reaction';
     const ROW_ID = 'emoji-reaction';
 
     /** Host Config field per built-in reaction, in the order the settings page lists them. */
